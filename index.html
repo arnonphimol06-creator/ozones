@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ozones — Focus Timer & Time Blocking</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='white' fill-opacity='0.9'/><circle cx='50' cy='50' r='18' fill='%23BA4949'/></svg>">
+</head>
+<body data-mode="pomodoro">
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="logo" href="#" id="logo">
+        <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true">
+          <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="10"/>
+          <circle cx="50" cy="50" r="14" fill="currentColor"/>
+        </svg>
+        Ozones
+      </a>
+      <nav class="nav">
+        <button class="nav-btn active" id="navTimer" data-view="timer">
+          <span class="nav-ico">⏱</span> <span class="nav-label">Timer</span>
+        </button>
+        <button class="nav-btn" id="navCalendar" data-view="calendar">
+          <span class="nav-ico">🗓</span> <span class="nav-label">Calendar</span>
+        </button>
+        <button class="nav-btn" id="navSettings">
+          <span class="nav-ico">⚙</span> <span class="nav-label">Setting</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ══════════════ TIMER VIEW ══════════════ -->
+  <main class="view view-timer active" id="viewTimer">
+    <div class="timer-card">
+      <div class="mode-tabs" role="tablist">
+        <button class="mode-tab active" data-mode="pomodoro" role="tab">Pomodoro</button>
+        <button class="mode-tab" data-mode="short" role="tab">Short Break</button>
+        <button class="mode-tab" data-mode="long" role="tab">Long Break</button>
+      </div>
+      <div class="time-display" id="timeDisplay">25:00</div>
+      <button class="start-btn" id="startBtn">START</button>
+      <button class="skip-btn hidden" id="skipBtn" title="Skip to next">⏭</button>
+    </div>
+
+    <div class="session-info">
+      <div class="session-count" id="sessionCount">#1</div>
+      <div class="session-msg" id="sessionMsg">Time to focus!</div>
+    </div>
+
+    <section class="tasks">
+      <div class="tasks-header">
+        <h2>Tasks</h2>
+        <button class="tasks-menu-btn" id="clearTasksBtn" title="Clear finished tasks">⋮</button>
+      </div>
+      <ul class="task-list" id="taskList"></ul>
+
+      <button class="add-task-toggle" id="addTaskToggle">
+        <span class="plus">＋</span> Add Task
+      </button>
+
+      <form class="task-form hidden" id="taskForm">
+        <input type="text" id="taskTitle" placeholder="What are you working on?" maxlength="120" autocomplete="off">
+        <div class="est-row">
+          <label>Est Pomodoros</label>
+          <div class="est-controls">
+            <input type="number" id="taskEst" value="1" min="0" max="99">
+            <button type="button" class="est-btn" id="estUp">▲</button>
+            <button type="button" class="est-btn" id="estDown">▼</button>
+          </div>
+        </div>
+        <div class="task-form-actions">
+          <button type="button" class="btn-flat" id="taskCancel">Cancel</button>
+          <button type="submit" class="btn-dark">Save</button>
+        </div>
+      </form>
+
+      <div class="tasks-summary hidden" id="tasksSummary"></div>
+    </section>
+  </main>
+
+  <!-- ══════════════ CALENDAR VIEW ══════════════ -->
+  <main class="view view-calendar" id="viewCalendar">
+    <div class="cal-toolbar">
+      <div class="cal-nav">
+        <button class="cal-nav-btn" id="calPrev" title="Previous day">‹</button>
+        <button class="cal-today-btn" id="calToday">Today</button>
+        <button class="cal-nav-btn" id="calNext" title="Next day">›</button>
+      </div>
+      <h2 class="cal-date" id="calDate">Today</h2>
+      <div class="cal-hint">Drag on the grid to block time</div>
+    </div>
+
+    <div class="cal-scroll" id="calScroll">
+      <div class="cal-grid" id="calGrid">
+        <div class="cal-hours" id="calHours"></div>
+        <div class="cal-canvas" id="calCanvas">
+          <div class="now-line hidden" id="nowLine"><span class="now-dot"></span></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ══════════════ BLOCK MODAL ══════════════ -->
+  <div class="modal-overlay hidden" id="blockModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 id="blockModalTitle">Time Block</h3>
+        <button class="modal-close" data-close="blockModal">✕</button>
+      </div>
+      <form id="blockForm" class="modal-body">
+        <label class="field">
+          <span>Title</span>
+          <input type="text" id="blockTitle" placeholder="Deep work, meeting, gym…" maxlength="80" autocomplete="off">
+        </label>
+        <div class="field-row">
+          <label class="field">
+            <span>Start</span>
+            <input type="time" id="blockStart" required step="300">
+          </label>
+          <label class="field">
+            <span>End</span>
+            <input type="time" id="blockEnd" required step="300">
+          </label>
+        </div>
+        <div class="field">
+          <span>Color</span>
+          <div class="color-swatches" id="blockColors"></div>
+        </div>
+        <label class="field checkbox-field">
+          <input type="checkbox" id="blockFocus">
+          <span>Focus block (start pomodoro from calendar)</span>
+        </label>
+        <div class="modal-actions">
+          <button type="button" class="btn-danger hidden" id="blockDelete">Delete</button>
+          <span class="spacer"></span>
+          <button type="button" class="btn-flat" data-close="blockModal">Cancel</button>
+          <button type="submit" class="btn-dark">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══════════════ SETTINGS MODAL ══════════════ -->
+  <div class="modal-overlay hidden" id="settingsModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>⚙ Setting</h3>
+        <button class="modal-close" data-close="settingsModal">✕</button>
+      </div>
+      <form id="settingsForm" class="modal-body">
+        <h4 class="settings-section">⏱ Timer (minutes)</h4>
+        <div class="field-row">
+          <label class="field">
+            <span>Pomodoro</span>
+            <input type="number" id="setPomodoro" min="1" max="180" step="1">
+          </label>
+          <label class="field">
+            <span>Short Break</span>
+            <input type="number" id="setShort" min="1" max="60" step="1">
+          </label>
+          <label class="field">
+            <span>Long Break</span>
+            <input type="number" id="setLong" min="1" max="90" step="1">
+          </label>
+        </div>
+        <label class="field switch-field">
+          <span>Auto Start Breaks</span>
+          <input type="checkbox" id="setAutoBreak">
+        </label>
+        <label class="field switch-field">
+          <span>Auto Start Pomodoros</span>
+          <input type="checkbox" id="setAutoPomo">
+        </label>
+        <label class="field">
+          <span>Long Break interval</span>
+          <input type="number" id="setInterval" min="1" max="12" step="1">
+        </label>
+        <h4 class="settings-section">🔔 Sound</h4>
+        <label class="field switch-field">
+          <span>Alarm sound</span>
+          <input type="checkbox" id="setSound">
+        </label>
+        <div class="modal-actions">
+          <span class="spacer"></span>
+          <button type="submit" class="btn-dark">OK</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
