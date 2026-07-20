@@ -1,26 +1,47 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --focus: #ba4949;
+  --short: #38858a;
+  --long: #397097;
+  --surface: rgba(255, 255, 255, 0.1);
+  --surface-strong: rgba(255, 255, 255, 0.2);
+  --text: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.7);
+  --btn-face: #ffffff;
+  --bg: var(--focus);
+}
+
+body[data-mode="pomodoro"] {
+  --bg: var(--focus);
+}
+body[data-mode="short"] {
+  --bg: var(--short);
+}
+body[data-mode="long"] {
+  --bg: var(--long);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-btn-face: var(--btn-face);
+  --font-sans: var(--font-inter);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  transition: background-color 500ms ease;
+}
+
+.clock {
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(4.5rem, 18vw, 7.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
