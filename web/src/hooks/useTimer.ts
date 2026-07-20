@@ -1,14 +1,31 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { unlockAudio, playAlarm } from "@/lib/audio";
+import { MODE_LABEL } from "@/lib/constants";
+import { formatDuration } from "@/lib/format";
 import * as machine from "@/lib/timerMachine";
 import type { TimerMode, TimerSettings, TimerState } from "@/types";
+import { useNotification } from "./useNotification";
 
 const TICK_MS = 250;
 
-export function useTimer(settings: TimerSettings) {
-  const [state, setState] = useState<TimerState>(() => machine.createInitialState(settings));
+export function useTimer(
+  settings: TimerSettings,
+  initial?: { mode: TimerMode; completedCount: number },
+) {
+  const [state, setState] = useState<TimerState>(() => {
+    const base = machine.createInitialState(settings);
+    if (!initial) return base;
+    return {
+      ...base,
+      mode: initial.mode,
+      completedCount: initial.completedCount,
+      remainingMs: machine.durationMs(initial.mode, settings),
+    };
+  });
   const [now, setNow] = useState(() => Date.now());
+  const { requestPermission, notify } = useNotification();
 
   // Drives re-renders while running so remainingMs (derived from endAt) stays live.
   // Never decrements a stored seconds counter — endAt - now is recomputed every tick.
@@ -32,14 +49,31 @@ export function useTimer(settings: TimerSettings) {
   }, [state.status]);
 
   useEffect(() => {
-    if (machine.isExpired(state, now)) {
-      setState(machine.complete(state, settings));
-    }
-  }, [state, now, settings]);
+    if (!machine.isExpired(state, now)) return;
+
+    let next = machine.complete(state, settings);
+    const shouldAutoStart =
+      next.mode === "focus" ? settings.autoStartPomodoros : settings.autoStartBreaks;
+    if (shouldAutoStart) next = machine.start(next, Date.now());
+
+    playAlarm(settings.alarmSound, settings.alarmVolume);
+    notify(MODE_LABEL[next.mode], { body: "Ozones", tag: "ozones-session" });
+
+    setState(next);
+  }, [state, now, settings, notify]);
 
   const remainingMs = machine.getRemainingMs(state, now);
 
-  const start = useCallback(() => setState((s) => machine.start(s, Date.now())), []);
+  // Tab-title countdown so the time is visible even when the app isn't the focused tab.
+  useEffect(() => {
+    document.title = `${formatDuration(remainingMs)} - ${MODE_LABEL[state.mode]} | Ozones`;
+  }, [remainingMs, state.mode]);
+
+  const start = useCallback(() => {
+    unlockAudio();
+    void requestPermission();
+    setState((s) => machine.start(s, Date.now()));
+  }, [requestPermission]);
   const pause = useCallback(() => setState((s) => machine.pause(s, Date.now())), []);
   const skip = useCallback(() => setState((s) => machine.skip(s, settings)), [settings]);
   const reset = useCallback(() => setState((s) => machine.reset(s, settings)), [settings]);

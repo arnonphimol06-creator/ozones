@@ -83,4 +83,40 @@ describe("useTimer", () => {
     expect(result.current.state.completedCount).toBe(1);
     expect(result.current.remainingMs).toBe(settings.shortMin * 60_000);
   });
+
+  it("stays idle after auto-completing when the matching auto-start setting is off", () => {
+    const settings: TimerSettings = { ...DEFAULT_SETTINGS, focusMin: 0.1, autoStartBreaks: false };
+    const { result } = renderHook(() => useTimer(settings));
+
+    act(() => result.current.start());
+    act(() => {
+      vi.advanceTimersByTime(6_000);
+    });
+
+    expect(result.current.state.status).toBe("idle");
+  });
+
+  it("auto-starts the next session when the matching auto-start setting is on", () => {
+    const settings: TimerSettings = { ...DEFAULT_SETTINGS, focusMin: 0.1, autoStartBreaks: true };
+    const { result } = renderHook(() => useTimer(settings));
+
+    act(() => result.current.start());
+    act(() => {
+      vi.advanceTimersByTime(6_000);
+    });
+
+    expect(result.current.state.status).toBe("running");
+    expect(result.current.state.mode).toBe("short");
+  });
+
+  it("hydrates its initial mode and completedCount from a persisted value instead of always starting fresh", () => {
+    const { result } = renderHook(() =>
+      useTimer(DEFAULT_SETTINGS, { mode: "long", completedCount: 7 }),
+    );
+
+    expect(result.current.state.status).toBe("idle");
+    expect(result.current.state.mode).toBe("long");
+    expect(result.current.state.completedCount).toBe(7);
+    expect(result.current.remainingMs).toBe(DEFAULT_SETTINGS.longMin * 60_000);
+  });
 });
