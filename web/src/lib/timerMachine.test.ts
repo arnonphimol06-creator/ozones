@@ -9,6 +9,7 @@ import {
   nextMode,
   pause,
   reset,
+  setMode,
   skip,
   start,
 } from "./timerMachine";
@@ -189,6 +190,23 @@ describe("reset", () => {
     expect(wasReset.mode).toBe("focus");
     expect(wasReset.remainingMs).toBe(25 * 60_000);
     expect(wasReset.completedCount).toBe(paused.completedCount);
+  });
+});
+
+describe("setMode", () => {
+  it("manually switches to the chosen mode, stopping the timer and restoring that mode's full duration", () => {
+    const running = start(createInitialState(settings), 0);
+    const switched = setMode(running, "long", settings);
+    expect(switched.status).toBe("idle");
+    expect(switched.mode).toBe("long");
+    expect(switched.endAt).toBeNull();
+    expect(switched.remainingMs).toBe(15 * 60_000);
+  });
+
+  it("leaves completedCount untouched", () => {
+    const withProgress = { ...createInitialState(settings), completedCount: 3 };
+    const switched = setMode(withProgress, "short", settings);
+    expect(switched.completedCount).toBe(3);
   });
 });
 

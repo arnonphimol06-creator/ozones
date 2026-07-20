@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import * as machine from "@/lib/timerMachine";
-import type { TimerSettings, TimerState } from "@/types";
+import type { TimerMode, TimerSettings, TimerState } from "@/types";
 
 const TICK_MS = 250;
 
@@ -43,6 +43,10 @@ export function useTimer(settings: TimerSettings) {
   const pause = useCallback(() => setState((s) => machine.pause(s, Date.now())), []);
   const skip = useCallback(() => setState((s) => machine.skip(s, settings)), [settings]);
   const reset = useCallback(() => setState((s) => machine.reset(s, settings)), [settings]);
+  const setMode = useCallback(
+    (mode: TimerMode) => setState((s) => machine.setMode(s, mode, settings)),
+    [settings],
+  );
 
-  return { state, remainingMs, start, pause, skip, reset };
+  return { state, remainingMs, start, pause, skip, reset, setMode };
 }

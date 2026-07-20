@@ -48,6 +48,10 @@ export function reset(state: TimerState, settings: TimerSettings): TimerState {
   return { ...state, status: "idle", endAt: null, remainingMs: durationMs(state.mode, settings) };
 }
 
+export function setMode(state: TimerState, mode: TimerMode, settings: TimerSettings): TimerState {
+  return { ...state, status: "idle", mode, endAt: null, remainingMs: durationMs(mode, settings) };
+}
+
 export function skip(state: TimerState, settings: TimerSettings): TimerState {
   const mode = nextMode(state.mode, state.completedCount, settings.longInterval);
   return {
