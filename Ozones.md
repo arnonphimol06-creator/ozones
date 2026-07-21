@@ -192,16 +192,16 @@ settings     user_id PK/FK, focus_min, short_min, long_min,
 ---
 
 ## 5. เช็กลิสต์ทดสอบก่อนปล่อย (ต้องผ่านทุกข้อ)
-- [ ] เริ่มจับเวลา → สลับไปแท็บอื่น 5 นาที → กลับมา เวลาต้องถูกต้อง
-- [ ] เริ่มจับเวลาบนมือถือ → ปิดจอ 3 นาที → เปิดจอ เวลาต้องถูกต้อง
-- [ ] refresh กลางคัน → settings และ task ยังอยู่ (timer reset ได้ ยอมรับได้)
-- [ ] แก้เวลา focus ระหว่างที่ timer กำลังวิ่ง → ต้องไม่พัง
-- [ ] กด Start รัว ๆ 10 ครั้ง → ไม่มี interval ซ้อน (เวลาไม่วิ่งเร็วผิดปกติ)
-- [ ] เพิ่ม task 50 อัน → ยังลื่น
-- [ ] title ยาว 200 ตัวอักษร → layout ไม่แตก
-- [ ] localStorage เต็ม/ถูกปิด (โหมด incognito บางเบราว์เซอร์) → เว็บไม่ขาว
-- [ ] Lighthouse: Performance ≥ 90, Accessibility ≥ 95
-- [ ] ทดสอบบน Chrome, Safari (iOS), Firefox
+- [x] เริ่มจับเวลา → สลับไปแท็บอื่น 5 นาที → กลับมา เวลาต้องถูกต้อง (endAt-based, unit-tested + visibilitychange recompute)
+- [ ] เริ่มจับเวลาบนมือถือ → ปิดจอ 3 นาที → เปิดจอ เวลาต้องถูกต้อง (กลไกเดียวกับข้อบน แต่ต้องทดสอบบนมือถือจริง — ดูข้อ 7.7)
+- [x] refresh กลางคัน → settings และ task ยังอยู่ (timer reset ได้ ยอมรับได้)
+- [x] แก้เวลา focus ระหว่างที่ timer กำลังวิ่ง → ต้องไม่พัง (แถมเจอบั๊ก: เปลี่ยนตอน idle ก่อนกด Start หน้าจอไม่อัปเดต — แก้แล้วใน useTimer.ts)
+- [x] กด Start รัว ๆ 10 ครั้ง → ไม่มี interval ซ้อน (เวลาไม่วิ่งเร็วผิดปกติ) — วัดจริง drift 11ms/3s
+- [x] เพิ่ม task 50 อัน → ยังลื่น — toggle latency ~93ms หลังมี 50 tasks
+- [x] title ยาว 200 ตัวอักษร → layout ไม่แตก (truncate + min-w-0 กันไว้แล้ว)
+- [x] localStorage เต็ม/ถูกปิด (โหมด incognito บางเบราว์เซอร์) → เว็บไม่ขาว
+- [~] Lighthouse: Performance ≥ 90, Accessibility ≥ 95 — Accessibility 96 ✅, Performance 81 (local `next start`, เจอบั๊กจริง: devtools bundle หลุดไปโปรดักชัน แก้แล้ว next.config.ts ทำให้ขึ้นจาก 72→81; ควรวัดใหม่กับ URL จริงบน Vercel ตอน D14 เพราะ local headless throttling โหดกว่าจริง)
+- [ ] ทดสอบบน Chrome, Safari (iOS), Firefox (Chrome ผ่านอัตโนมัติแล้ว; Safari/Firefox ต้องทดสอบบนอุปกรณ์จริง — ดูข้อ 7.7)
 
 ---
 

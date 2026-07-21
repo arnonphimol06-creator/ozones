@@ -109,6 +109,41 @@ describe("useTimer", () => {
     expect(result.current.state.mode).toBe("short");
   });
 
+  it("updates the idle remainingMs when settings change before the timer starts", () => {
+    const { result, rerender } = renderHook(
+      ({ settings }) => useTimer(settings),
+      { initialProps: { settings: DEFAULT_SETTINGS } },
+    );
+
+    expect(result.current.remainingMs).toBe(25 * 60_000);
+
+    const changed: TimerSettings = { ...DEFAULT_SETTINGS, focusMin: 40 };
+    rerender({ settings: changed });
+
+    expect(result.current.state.status).toBe("idle");
+    expect(result.current.remainingMs).toBe(40 * 60_000);
+  });
+
+  it("does not override a running or paused session's remaining time when settings change", () => {
+    const { result, rerender } = renderHook(
+      ({ settings }) => useTimer(settings),
+      { initialProps: { settings: DEFAULT_SETTINGS } },
+    );
+
+    act(() => result.current.start());
+    act(() => {
+      vi.advanceTimersByTime(5_000);
+    });
+    act(() => result.current.pause());
+    const frozen = result.current.remainingMs;
+
+    const changed: TimerSettings = { ...DEFAULT_SETTINGS, focusMin: 90 };
+    rerender({ settings: changed });
+
+    expect(result.current.state.status).toBe("paused");
+    expect(result.current.remainingMs).toBe(frozen);
+  });
+
   it("hydrates its initial mode and completedCount from a persisted value instead of always starting fresh", () => {
     const { result } = renderHook(() =>
       useTimer(DEFAULT_SETTINGS, { mode: "long", completedCount: 7 }),

@@ -48,6 +48,14 @@ export function useTimer(
     };
   }, [state.status]);
 
+  // Settings can change while idle (e.g. editing focus minutes before starting);
+  // keep the displayed duration in sync instead of showing a stale value.
+  useEffect(() => {
+    setState((s) =>
+      s.status === "idle" ? { ...s, remainingMs: machine.durationMs(s.mode, settings) } : s,
+    );
+  }, [settings]);
+
   useEffect(() => {
     if (!machine.isExpired(state, now)) return;
 
