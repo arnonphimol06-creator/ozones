@@ -54,36 +54,50 @@ export function TaskList({
       </ul>
 
       {formOpen ? (
-        <form onSubmit={submit} className="mt-2.5 rounded-lg bg-white p-4.5 text-[#333]">
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="What are you working on?"
-            maxLength={120}
-            autoFocus
-            className="w-full border-none text-xl font-bold italic text-[#555] outline-none placeholder:text-[#ccc]"
-          />
-          <div className="mt-4">
-            <label className="mb-2 block text-sm font-bold text-[#555]">Est Pomodoros</label>
+        <form
+          onSubmit={submit}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setFormOpen(false);
+          }}
+          className="mt-2.5 rounded-lg bg-white p-4.5 text-[#333]"
+        >
+          <label className="block">
+            <span className="sr-only">Task title</span>
             <input
-              type="number"
-              min={0}
-              max={99}
-              value={estimated}
-              onChange={(e) => setEstimated(Number(e.target.value) || 0)}
-              className="w-[70px] rounded-md bg-[#efefef] p-2 text-center font-bold text-[#555]"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="What are you working on?"
+              maxLength={120}
+              autoFocus
+              className="focus-ring-dark w-full rounded border-none text-xl font-bold italic text-[#555] placeholder:text-[#ccc]"
             />
+          </label>
+          <div className="mt-4">
+            <label className="block text-sm font-bold text-[#555]">
+              <span className="mb-2 block">Est Pomodoros</span>
+              <input
+                type="number"
+                min={0}
+                max={99}
+                value={estimated}
+                onChange={(e) => setEstimated(Number(e.target.value) || 0)}
+                className="focus-ring-dark w-[70px] rounded-md bg-[#efefef] p-2 text-center font-bold text-[#555]"
+              />
+            </label>
           </div>
           <div className="-mx-4.5 -mb-4.5 mt-4.5 flex justify-end gap-2.5 rounded-b-lg bg-[#efefef] p-3">
             <button
               type="button"
               onClick={() => setFormOpen(false)}
-              className="px-3 py-2 text-sm font-bold text-[#888]"
+              className="focus-ring-dark rounded px-3 py-2 text-sm font-bold text-[#888]"
             >
               Cancel
             </button>
-            <button type="submit" className="rounded bg-[#222] px-5 py-2 text-sm font-bold text-white">
+            <button
+              type="submit"
+              className="focus-ring-dark rounded bg-[#222] px-5 py-2 text-sm font-bold text-white"
+            >
               Save
             </button>
           </div>
@@ -92,7 +106,7 @@ export function TaskList({
         <button
           type="button"
           onClick={() => setFormOpen(true)}
-          className="mt-2.5 w-full rounded-lg border-2 border-dashed border-white/50 p-4 text-[15px] font-bold text-white/85 hover:bg-black/10 hover:text-text"
+          className="focus-ring mt-2.5 w-full rounded-lg border-2 border-dashed border-white/50 p-4 text-[15px] font-bold text-white/85 hover:bg-black/10 hover:text-text"
         >
           ＋ Add Task
         </button>

@@ -23,6 +23,16 @@ export default function Home() {
   const [appState, setAppState] = useLocalStorage<AppState>(STORAGE_KEYS.state, DEFAULT_APP_STATE);
   const [tasks, setTasks] = useLocalStorage<Task[]>(STORAGE_KEYS.tasks, []);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const settingsButtonRef = useRef<HTMLButtonElement>(null);
+  const wasSettingsOpen = useRef(false);
+
+  // Return keyboard focus to the trigger once the settings dialog closes.
+  useEffect(() => {
+    if (wasSettingsOpen.current && !settingsOpen) {
+      settingsButtonRef.current?.focus();
+    }
+    wasSettingsOpen.current = settingsOpen;
+  }, [settingsOpen]);
 
   const { state, remainingMs, start, pause, skip, setMode } = useTimer(settings, {
     mode: appState.mode,
@@ -79,12 +89,14 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center gap-2 p-4">
+      <h1 className="sr-only">Ozones Pomodoro Timer</h1>
       <div className="flex w-full max-w-[480px] justify-end pt-2">
         <button
+          ref={settingsButtonRef}
           type="button"
           onClick={() => setSettingsOpen(true)}
           aria-label="Open settings"
-          className="rounded bg-surface px-3 py-1.5 text-text"
+          className="focus-ring rounded bg-surface px-3 py-1.5 text-text"
         >
           ⚙
         </button>

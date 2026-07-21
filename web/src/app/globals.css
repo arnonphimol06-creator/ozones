@@ -45,3 +45,26 @@ body {
   font-weight: 700;
   letter-spacing: -0.02em;
 }
+
+/* Custom focus-visible rings: keyboard-only, contrast tuned per surface. */
+.focus-ring,
+.focus-ring-dark {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+.focus-ring-dark:focus-visible {
+  outline: 2px solid #2b2b2b;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
